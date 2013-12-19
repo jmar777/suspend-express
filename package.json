@@ -1,0 +1,25 @@
+{
+	"author": "Jeremy Martin <jmar777@gmail.com> (http://twitter.com/jmar777)",
+	"name": "suspend-express",
+	"description": "Write simpler, cleaner express routes using generators and suspend.",
+	"keywords": ["suspend", "express", "connect", "async", "generator", "yield", "callback", "promise", "flow", "control"],
+	"version": "0.0.1",
+	"repository": {
+		"type": "git",
+		"url": "git://github.com/jmar777/suspend.git"
+	},
+	"main": "lib/suspend-express.js",
+	"scripts": {
+		"test": "node ./node_modules/mocha/bin/mocha --harmony-generators --reporter list"
+	},
+	"devDependencies": {
+		"mocha": "~1.15.1",
+		"express": "~3.4.7",
+		"grunt": "~0.4.2",
+		"grunt-contrib-jshint": "~0.7.2"
+	},
+	"engines": {
+		"node": ">=0.11.3"
+	},
+	"license": "MIT"
+}
