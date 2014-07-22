@@ -5,7 +5,7 @@ var assert = require('assert'),
 	patch = suspendExpress.patch,
 	resume = suspendExpress.suspend.resume;
 
-describe('.param(name, fn*)', function(){
+describe('app.param(name, fn*)', function(){
 	it('should auto-wrap generator functions', function(done) {
 		var app = patch(express());
 

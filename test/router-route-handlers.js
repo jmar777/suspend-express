@@ -6,15 +6,18 @@ var assert = require('assert'),
 	patch = suspendExpress.patch,
 	resume = suspendExpress.suspend.resume;
 
-describe('.route(path).VERB(fn*)', function() {
+describe('router.route(path).VERB(fn*)', function() {
 	it('should auto-wrap generator functions', function(done) {
-		var app = patch(express());
+		var app = express(),
+			router = patch(express.Router());
 
-		app.route('/').get(function*(req, res, next) {
+		router.route('/').get(function*(req, res, next) {
 			res.send('boom');
 		});
 
-		request(app).get('/')
+		app.use('/test', router);
+
+		request(app).get('/test')
 			.end(function(err, res) {
 				assert.ifError(err);
 				assert.strictEqual(res.statusCode, 200);
@@ -24,16 +27,19 @@ describe('.route(path).VERB(fn*)', function() {
 	});
 
 	it('should work with multiple middleware', function(done) {
-		var app = patch(express());
+		var app = express(),
+			router = patch(express.Router());
 
-		app.route('/').get(function*(req, res, next) {
+		router.route('/').get(function*(req, res, next) {
 			req.foo = 'bar';
 			next();
 		}, function*(req, res, next) {
 			res.send(req.foo);
 		});
 
-		request(app).get('/')
+		app.use('/test', router);
+
+		request(app).get('/test')
 			.end(function(err, res) {
 				assert.ifError(err);
 				assert.strictEqual(res.statusCode, 200);
@@ -43,35 +49,41 @@ describe('.route(path).VERB(fn*)', function() {
 	});
 
 	it('should forward thrown errors', function(done) {
-		var app = patch(express());
+		var app = express(),
+			router = patch(express.Router());
 
-		app.route('/').get(function*(req, res, next) {
+		router.route('/').get(function*(req, res, next) {
 			throw new Error('catch me');
 		});
+
+		app.use('/test', router);
 
 		app.use(function(err, req, res, next) {
 			assert.strictEqual(err.message, 'catch me');
 			done();
 		});
-	
-		request(app).get('/').end(noop);
+
+		request(app).get('/test').end(noop);
 	});
 });
 
-describe('.del(path, fn*) alias', function() {
+describe('router.del(path, fn*) alias', function() {
 	it('should work', function(done) {
-		var app = express();
+		var app = express(),
+			router = express.Router();
 
 		// app.del() is deprecated, so skip test if/when it's removed
-		if (!app.del) return done();
+		if (!router.del) return done();
 
-		patch(app);
+		patch(router);
 
-		app.del('/', function*(req, res, next) {
+		router.del('/', function*(req, res, next) {
 			res.send('deleted');
 		});
 
-		request(app).delete('/')
+		app.use('/test', router);
+
+		request(app).delete('/test')
 			.end(function(err, res) {
 				assert.ifError(err);
 				assert.strictEqual(res.statusCode, 200);
@@ -81,20 +93,23 @@ describe('.del(path, fn*) alias', function() {
 	});
 });
 
-// i think i read once that it's bad to programmatically build out your test cases...
+// todo: figure out why router.all(path, fn*) fails
 methods.filter(function(method) {
 	// todo: how do we test CONNECT requests?
 	return method !== 'connect';
 }).concat('all').forEach(function(method) {
-	describe('.' + method + '(path, fn*)', function() {
+	describe('router.' + method + '(path, fn*)', function() {
 		it('should auto-wrap generator functions', function(done) {
-			var app = patch(express());
+			var app = express(),
+				router = patch(express.Router());
 
-			app[method]('/', function*(req, res, next) {
+			router[method]('/', function*(req, res, next) {
 				res.send(method + ' successful');
 			});
 
-			request(app)[method === 'all' ? 'get' : method]('/')
+			app.use('/test', router);
+
+			request(app)[method === 'all' ? 'get' : method]('/test')
 				.end(function(err, res) {
 					assert.ifError(err);
 					assert.strictEqual(res.statusCode, 200);
@@ -106,9 +121,10 @@ methods.filter(function(method) {
 		});
 
 		it('should work with multiple middleware', function(done) {
-			var app = patch(express());
+			var app = express(),
+				router = patch(express.Router());
 
-			app[method]('/', function*(req, res, next) {
+			router[method]('/', function*(req, res, next) {
 				req.foo = 'bar';
 				next();
 			},
@@ -120,7 +136,9 @@ methods.filter(function(method) {
 				res.send(req.foo);
 			});
 
-			request(app)[method === 'all' ? 'get' : method]('/')
+			app.use('/test', router);
+
+			request(app)[method === 'all' ? 'get' : method]('/test')
 				.end(function(err, res) {
 					assert.ifError(err);
 					assert.strictEqual(res.statusCode, 200);
@@ -132,18 +150,21 @@ methods.filter(function(method) {
 		});
 
 		it('should forward thrown errors', function(done) {
-			var app = patch(express());
+			var app = express(),
+				router = patch(express.Router());
 
-			app[method]('/', function*(req, res, next) {
+			router[method]('/', function*(req, res, next) {
 				throw new Error('catch me');
 			});
+
+			app.use('/test', router);
 
 			app.use(function(err, req, res, next) {
 				assert.strictEqual(err.message, 'catch me');
 				done();
 			});
-		
-			request(app)[method === 'all' ? 'get' : method]('/').end(noop);
+
+			request(app)[method === 'all' ? 'get' : method]('/test').end(noop);
 		});
 	});
 });

@@ -5,7 +5,7 @@ var assert = require('assert'),
 	patch = suspendExpress.patch,
 	resume = suspendExpress.suspend.resume;
 
-describe('.use(fn*)', function(){
+describe('app.use(fn*)', function(){
 	it('should auto-wrap generator functions', function(done) {
 		var app = patch(express());
 
@@ -39,7 +39,7 @@ describe('.use(fn*)', function(){
 			assert.strictEqual(err.message, 'catch me');
 			done();
 		});
-		
+
 		request(app).get('/').end(noop);
 	});
 
@@ -54,12 +54,12 @@ describe('.use(fn*)', function(){
 			assert.strictEqual(err.message, 'catch me');
 			done();
 		});
-		
+
 		request(app).get('/').end(noop);
 	});
 });
 
-describe('.use(path, fn*)', function(){
+describe('app.use(path, fn*)', function(){
 	it('should auto-wrap generator functions', function(done) {
 		var app = patch(express());
 
@@ -93,7 +93,7 @@ describe('.use(path, fn*)', function(){
 			assert.strictEqual(err.message, 'catch me');
 			done();
 		});
-		
+
 		request(app).get('/').end(noop);
 	});
 
@@ -108,7 +108,7 @@ describe('.use(path, fn*)', function(){
 			assert.strictEqual(err.message, 'catch me');
 			done();
 		});
-		
+
 		request(app).get('/').end(noop);
 	});
 });
