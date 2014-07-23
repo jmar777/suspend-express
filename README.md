@@ -1,5 +1,6 @@
 # suspend-express
 
+
 Write simpler, cleaner express middleware using generators and [suspend](https://github.com/jmar777/suspend).
 
 suspend-express is built for express 4 and requires Node v0.11.3+.
@@ -43,35 +44,47 @@ $ npm install suspend-express
 
 ### How it Works
 
-suspend-express works by patching a given express app, allowing it to transparently wrap generator functions with [suspend](https://github.com/jmar777/suspend).  The patched express app remains 100% compatible with its preexisting API; the only difference is that it can now accept generator functions in all the most useful places.  For a deeper look at how it actually patches express applications, please check out the [source](https://github.com/jmar777/suspend-express/blob/master/lib/suspend-express.js).
+suspend-express works by patching a given express [app](http://expressjs.com/4x/api.html#express) or [router](http://expressjs.com/4x/api.html#router), allowing it to transparently (to express) wrap generator functions with [suspend](https://github.com/jmar777/suspend).  The patched express app or router remains 100% compatible with its preexisting API; the only difference is that it can now accept generator functions in all the most useful places.  For a deeper look at how it actually patches express applications, please check out the [source](https://github.com/jmar777/suspend-express/blob/master/lib/suspend-express.js).
 
 ### Features
 
-suspend-express is designed to enable generator functions within express' existing API, and then gets out of the way. Specifically, generator functions can be used with the following methods:
+suspend-express is designed to enable generator functions within express' existing API, and then gets out of the way.
+
+At present, the following express APIs are supported:
 
 * [`app.use([path], fn*)`](http://expressjs.com/4x/api.html#app.use)
 * [`app.VERB(path, [fn*...], fn*)`](http://expressjs.com/4x/api.html#app.VERB)
 * [`app.route(path).VERB(fn*)`](http://expressjs.com/4x/api.html#app.route)
 * [`app.param(name, fn*)`](http://expressjs.com/4x/api.html#app.param)
+* [`router.use([path], fn*)`](http://expressjs.com/4x/api.html#router.use)
+* [`router.VERB(path, [fn*...], fn*)`](http://expressjs.com/4x/api.html#router.VERB)
+* [`router.route(path).VERB(fn*)`](http://expressjs.com/4x/api.html#router.route)
+* [`router.param(name, fn*)`](http://expressjs.com/4x/api.html#router.param)
+
+The entire API surface is well tested, with over a 3-to-1 ratio of tests cases to lines of code (that's just a fun stat, so I had to throw it in).  Please do [report any issues](https://github.com/jmar777/suspend-express/issues), however!
 
 ### Limitations
 
-While generator functions are enabled in most of the obvious places, you should be aware that they are *not* in the following instances:
-
-* `app.param(fn)`: while `app.param(name, fn*)` is supported, `app.param(fn*)` (without the `name` parameter) is not.
-* `express.Router()`: because only application instances are patched, the `.use()` and `.VERB()` methods off of [`express.Router()`](http://expressjs.com/4x/api.html#router) aren't modified.  In the future, support for patching `Router` instances may be added, though.
+While generator functions are enabled in most of the obvious places, you should be aware that they are *not* enabled in `app.param(fn)` or `router.param(fn)` (they are, however, supported when the `name` parameter is provided, as in `app.param(name, fn*)`.
 
 ## API
 
-### `.patch(app)`
+### `.patch(app|router)`
 
-Accepts an express application instance and performs the necessary patching to enable generator functions. The return value is the patched application.
+Accepts an express application or router instance and performs the necessary patching to enable generator functions. The return value is the patched application.
 
 **Example:**
 
 ```javascript
 var express = require('express'),
     app = require('suspend-express').patch(express());
+```
+
+**Example:**
+
+```javascript
+var express = require('express'),
+    router = require('suspend-express').patch(express.Router());
 ```
 
 ### `.suspend`
@@ -92,7 +105,12 @@ app.get('/slow', function*() {
 });
 ```
 
-## License 
+Please note that since I maintain the suspend library as well, I can offer the following assurances:
+
+* suspend-express will be kept up-to-date with suspend.
+* The semantic versioning of suspend-express will account for any API developments of suspend as well.
+
+## License
 
 The MIT License (MIT)
 
