@@ -3,7 +3,7 @@
 	"name": "suspend-express",
 	"description": "Write simpler, cleaner express routes using generators and suspend.",
 	"keywords": ["suspend", "express", "async", "generators", "yield", "callback", "promise", "control flow", "flow control"],
-	"version": "0.0.1",
+	"version": "0.1.0",
 	"repository": {
 		"type": "git",
 		"url": "git://github.com/jmar777/suspend.git"
